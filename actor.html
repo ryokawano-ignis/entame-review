@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>俳優・声優一覧 — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .actor-hero {
+      background: linear-gradient(135deg, #0a0a14 0%, #111128 100%);
+      border-bottom: 1px solid #1e1e2e;
+      padding: 40px 20px 32px;
+      text-align: center;
+    }
+    .actor-back {
+      display: inline-block;
+      color: #888;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+    .actor-back:hover { color: #fff; }
+    .actor-hero-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .actor-hero-sub {
+      font-size: 0.88rem;
+      color: #888;
+      margin-bottom: 20px;
+    }
+    .actor-search-wrap {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .actor-search {
+      width: 100%;
+      padding: 11px 18px;
+      border-radius: 999px;
+      border: 1.5px solid #2e2e3a;
+      background: #1a1a24;
+      color: #e8e8e8;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .actor-search:focus { border-color: rgba(255,216,77,0.4); }
+    .actor-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+    .actor-count {
+      font-size: 0.82rem;
+      color: #888;
+      margin-bottom: 18px;
+    }
+    .actor-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+    }
+    .actor-card {
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 8px 16px;
+      border-radius: 12px;
+      background: #1a1a24;
+      border: 1px solid #2a2a34;
+      transition: transform 0.18s, border-color 0.18s;
+    }
+    .actor-card:hover { transform: translateY(-4px); border-color: #44445a; }
+    .actor-photo-wrap {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #2e2e3a;
+      flex-shrink: 0;
+    }
+    .actor-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .actor-photo-ph {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #2a2a38, #3a3a50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #888;
+    }
+    .actor-name {
+      font-size: 0.80rem;
+      font-weight: 700;
+      color: #e8e8e8;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .actor-known-for {
+      font-size: 0.68rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.3;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .actor-loading {
+      text-align: center;
+      color: #888;
+      padding: 60px 20px;
+      font-size: 1rem;
+      grid-column: 1 / -1;
+    }
+    .actor-load-more {
+      display: block;
+      margin: 28px auto 0;
+      padding: 12px 36px;
+      border-radius: 999px;
+      border: 1.5px solid #2e2e3a;
+      background: transparent;
+      color: #888;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .actor-load-more:hover { border-color: rgba(255,216,77,0.4); color: #e8e8e8; }
+    @media (max-width: 900px) { .actor-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (max-width: 620px) { .actor-grid { grid-template-columns: repeat(3, 1fr); } .actor-hero-title { font-size: 1.5rem; } }
+    @media (max-width: 400px) { .actor-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <section class="actor-hero">
+    <a href="index.html" class="actor-back">← トップに戻る</a>
+    <h1 class="actor-hero-title">俳優・声優一覧</h1>
+    <p class="actor-hero-sub">出演作品からお気に入りの俳優・声優を探そう</p>
+    <div class="actor-search-wrap">
+      <input type="text" id="actorSearch" class="actor-search" placeholder="名前で検索…">
+    </div>
+  </section>
+
+  <main>
+    <section class="actor-section">
+      <p class="actor-count" id="actorCount"></p>
+      <div class="actor-grid" id="actorGrid">
+        <p class="actor-loading" id="actorLoading">読み込んでいます…</p>
+      </div>
+      <button class="actor-load-more" id="loadMoreBtn" style="display:none;">もっと見る</button>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/kuroshiro@1.2.0/dist/kuroshiro.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/kuroshiro-analyzer-kuromoji@1.1.3/dist/kuroshiro-analyzer-kuromoji.min.js"></script>
+  <script src="actor.js"></script>
+</body>
+</html>

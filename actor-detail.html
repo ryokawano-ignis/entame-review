@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>俳優詳細 — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .actor-detail-hero {
+      background: #0a0a14;
+      border-bottom: 1px solid #1e1e2e;
+      position: relative;
+      overflow: hidden;
+    }
+    .actor-detail-hero-bg {
+      position: absolute;
+      inset: -20px;
+      background-size: cover;
+      background-position: center top;
+      filter: blur(28px) brightness(0.2) saturate(1.4);
+      z-index: 0;
+    }
+    .actor-detail-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(5,5,14,0.3), rgba(10,10,20,0.85) 80%, #0a0a14 100%);
+      z-index: 1;
+    }
+    .actor-detail-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 20px 36px;
+      display: flex;
+      gap: 32px;
+      align-items: flex-end;
+    }
+    .actor-detail-back {
+      position: absolute;
+      top: 20px; left: 20px;
+      color: #888;
+      text-decoration: none;
+      font-size: 0.82rem;
+      z-index: 3;
+      transition: color 0.2s;
+    }
+    .actor-detail-back:hover { color: #fff; }
+    .actor-detail-photo-wrap {
+      width: 160px;
+      min-width: 160px;
+      height: 240px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.7);
+      flex-shrink: 0;
+    }
+    .actor-detail-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .actor-detail-photo-ph {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #2a2a38, #3a3a50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      font-weight: 700;
+      color: #555;
+    }
+    .actor-detail-info {
+      flex: 1;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+    .actor-detail-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(255,216,77,0.8);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .actor-detail-name {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    }
+    .actor-detail-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+    }
+    .actor-detail-bio {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.75;
+      max-width: 560px;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .actor-detail-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .actor-detail-section-title {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #20202a;
+    }
+    .actor-detail-count {
+      font-size: 0.80rem;
+      color: #888;
+      font-weight: 400;
+      margin-left: 8px;
+    }
+    .actor-detail-loading {
+      text-align: center;
+      color: #888;
+      padding: 60px 20px;
+    }
+
+    @media (max-width: 620px) {
+      .actor-detail-hero-content { flex-direction: column; align-items: flex-start; gap: 16px; padding-top: 52px; }
+      .actor-detail-photo-wrap { width: 110px; min-width: 110px; height: 165px; }
+      .actor-detail-name { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <section class="actor-detail-hero" id="actorHero">
+    <div class="actor-detail-hero-bg" id="actorHeroBg"></div>
+    <div class="actor-detail-hero-overlay"></div>
+    <a href="actor.html" class="actor-detail-back">← 俳優一覧に戻る</a>
+    <div class="actor-detail-hero-content">
+      <div class="actor-detail-photo-wrap" id="actorPhotoWrap">
+        <div class="actor-detail-photo-ph" id="actorPhotoPlaceholder">👤</div>
+      </div>
+      <div class="actor-detail-info">
+        <p class="actor-detail-label">俳優・声優</p>
+        <h1 class="actor-detail-name" id="actorName">読み込み中…</h1>
+        <div class="actor-detail-meta" id="actorMeta"></div>
+        <p class="actor-detail-bio" id="actorBio"></p>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="actor-detail-section">
+      <h2 class="actor-detail-section-title">
+        出演作品<span class="actor-detail-count" id="worksCount"></span>
+      </h2>
+      <div class="review-grid" id="worksGrid">
+        <p class="actor-detail-loading" id="worksLoading">作品を読み込んでいます…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- 作品詳細モーダル -->
+  <div id="modalOverlay"></div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <button id="modalClose" aria-label="閉じる">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="modal.js"></script>
+  <script src="actor-detail.js"></script>
+</body>
+</html>

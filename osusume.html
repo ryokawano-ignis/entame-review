@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理人おすすめ — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ヘッダーエリア */
+    .osusume-hero {
+      background: linear-gradient(135deg, #0a0814 0%, #0d0010 50%, #000a1a 100%);
+      border-bottom: 1px solid #1e1a2e;
+      padding: 40px 20px 36px;
+    }
+    .osusume-hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .osusume-hero-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .osusume-hero-sub {
+      font-size: 0.92rem;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    .osusume-edit-btn {
+      padding: 9px 22px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 216, 77, 0.4);
+      background: transparent;
+      color: #ffd84d;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .osusume-edit-btn:hover { background: rgba(255, 216, 77, 0.1); }
+
+    /* セクション外枠 */
+    .osusume-section {
+      padding: 0;
+    }
+
+    /* ── 1作品ごとのブロック ─────────────────────── */
+    .osusume-item {
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* 奇数・偶数で基底色を微妙に変える */
+    .osusume-item:nth-child(odd)  { background: #080810; }
+    .osusume-item:nth-child(even) { background: #0c080e; }
+
+    /* ぼかし背景画像 */
+    .osusume-item-bg {
+      position: absolute;
+      inset: -40px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(32px) brightness(0.28) saturate(1.3);
+      z-index: 0;
+      transform: scale(1.05);
+    }
+
+    /* 暗めオーバーレイ（奇数・偶数で色味を少し変える） */
+    .osusume-item:nth-child(odd)  .osusume-item-overlay {
+      background: linear-gradient(to right, rgba(6,6,20,0.82) 0%, rgba(6,6,20,0.60) 100%);
+    }
+    .osusume-item:nth-child(even) .osusume-item-overlay {
+      background: linear-gradient(to right, rgba(16,6,10,0.82) 0%, rgba(16,6,10,0.60) 100%);
+    }
+    .osusume-item-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* コンテンツ全体 */
+    .osusume-item-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 40px;
+      display: flex;
+      gap: 52px;
+      align-items: center;
+    }
+
+    /* ── 左：ポスター ────────────────────────────── */
+    .osusume-item-left {
+      flex: 0 0 300px;
+      width: 300px;
+    }
+    .osusume-item-poster-wrap {
+      width: 300px;
+      height: 450px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.06);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    .osusume-item-poster-wrap:hover {
+      transform: scale(1.03);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .osusume-item-poster {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .osusume-item-poster-ph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+
+    /* ── 右：テキストエリア ─────────────────────── */
+    .osusume-item-right {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .osusume-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .osusume-item-number {
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: rgba(255,216,77,0.6);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* グラデーションタイトル */
+    .osusume-item-title {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1.25;
+      margin: 0;
+      background: linear-gradient(135deg, #ffffff 55%, #ffd84d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 管理人コメント：引用ブロック */
+    .osusume-item-comment {
+      margin: 0;
+      padding: 12px 18px;
+      border-left: 3px solid #ffd84d;
+      background: rgba(255, 216, 77, 0.05);
+      border-radius: 0 6px 6px 0;
+      color: #f0da90;
+      font-size: 0.92rem;
+      font-style: italic;
+      line-height: 1.75;
+    }
+
+    /* あらすじ */
+    .osusume-item-synopsis {
+      margin: 0;
+      color: rgba(255,255,255,0.65);
+      font-size: 0.875rem;
+      line-height: 1.85;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* タグ */
+    .osusume-item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* ボタン群 */
+    .osusume-item-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .osusume-item-btn {
+      padding: 8px 20px;
+      border-radius: 999px;
+      border: 1.5px solid #2e2e3a;
+      background: rgba(255,255,255,0.04);
+      color: #aaa;
+      font-size: 0.82rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .osusume-item-btn:hover { border-color: #555; color: #e8e8e8; background: rgba(255,255,255,0.08); }
+    .osusume-item-btn.card-fav-btn.active  { color: #ff6b8a; border-color: rgba(255,107,138,0.4); background: rgba(255,107,138,0.08); }
+    .osusume-item-btn.card-wish-btn.active { color: #ffd84d; border-color: rgba(255,216,77,0.4);  background: rgba(255,216,77,0.08);  }
+    .osusume-item-btn.card-line-btn        { background: #06C755; color: #fff; border-color: #06C755; font-weight: 700; }
+    .osusume-item-btn.card-line-btn:hover  { background: #05b34d; border-color: #05b34d; color: #fff; }
+    .osusume-detail-btn {
+      padding: 9px 22px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,216,77,0.45);
+      background: transparent;
+      color: #ffd84d;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .osusume-detail-btn:hover { background: rgba(255,216,77,0.1); }
+
+    /* ── タブバー ────────────────────────────────── */
+    .osusume-tab-bar {
+      background: rgba(0,0,0,0.35);
+      border-bottom: 1px solid #1e1a2e;
+    }
+    .osusume-tab-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .osusume-tab-inner::-webkit-scrollbar { display: none; }
+    .osusume-tab-btn {
+      flex-shrink: 0;
+      padding: 14px 22px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #888;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      position: relative;
+      top: 1px;
+    }
+    .osusume-tab-btn:hover { color: #ccc; }
+    .osusume-tab-btn.active {
+      color: #ffd84d;
+      border-bottom-color: #ffd84d;
+      font-weight: 700;
+    }
+    .osusume-tab-count {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    /* フェードアニメーション */
+    #osusumeGrid {
+      transition: opacity 0.22s ease;
+    }
+    #osusumeGrid.fading {
+      opacity: 0;
+    }
+
+    /* ローディング */
+    .osusume-loading {
+      text-align: center;
+      color: #888;
+      padding: 80px 20px;
+      font-size: 1rem;
+    }
+
+    /* ── レスポンシブ ──────────────────────────── */
+    @media (max-width: 800px) {
+      .osusume-item-inner { flex-direction: column; padding: 40px 20px; gap: 28px; align-items: flex-start; }
+      .osusume-item-left  { flex: none; width: 100%; }
+      .osusume-item-poster-wrap { width: 160px; height: 240px; }
+      .osusume-item-title { font-size: 1.4rem; }
+      .osusume-item { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <section class="osusume-hero">
+    <div class="osusume-hero-inner">
+      <a href="index.html" class="special-back">← トップに戻る</a>
+      <h1 class="osusume-hero-title">管理人おすすめ</h1>
+      <p class="osusume-hero-sub">管理人が厳選したおすすめ作品です。</p>
+      <button id="ichoshiBtn" class="osusume-edit-btn admin-only">おすすめ編集</button>
+    </div>
+  </section>
+
+  <div class="osusume-tab-bar">
+    <div class="osusume-tab-inner" id="osusumeTabBar"></div>
+  </div>
+
+  <main>
+    <section class="osusume-section">
+      <div id="osusumeGrid">
+        <p class="osusume-loading">読み込んでいます…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- レビュー詳細モーダル -->
+  <div id="modalOverlay"></div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <button id="modalClose" aria-label="閉じる">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <!-- おすすめ編集モーダル -->
+  <div id="ichoshiEditOverlay"></div>
+  <div id="ichoshiEditModal" role="dialog" aria-modal="true">
+    <button id="ichoshiEditClose" aria-label="閉じる">✕</button>
+    <div id="ichoshiEditContent"></div>
+  </div>
+
+  <script src="osusume.js"></script>
+  <script src="data.js"></script>
+  <script src="modal.js"></script>
+  <script src="app.js"></script>
+  <script src="osusume-page.js"></script>
+</body>
+</html>

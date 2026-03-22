@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>役所広司特集 — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Special page specific styles */
+    .special-hero {
+      background: linear-gradient(135deg, #1a0008 0%, #0d0010 50%, #000a1a 100%);
+      border-bottom: 1px solid #2a0015;
+      overflow: hidden;
+    }
+    .special-hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .special-hero-left { flex: 1; min-width: 0; }
+    .special-back {
+      display: inline-block;
+      color: var(--muted, #888);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+    .special-back:hover { color: #fff; }
+    .special-hero-label {
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--gold, #ffd84d);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .special-hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .special-hero-sub {
+      font-size: 1rem;
+      color: #ccaaaa;
+      line-height: 1.7;
+    }
+
+    /* 右側：写真エリア */
+    .special-hero-photo-wrap {
+      flex-shrink: 0;
+      position: relative;
+      width: 180px;
+      height: 250px;
+    }
+    .special-hero-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      border-radius: 8px;
+    }
+    /* 左・右・下をヒーロー背景色にフェード */
+    .special-hero-photo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background:
+        linear-gradient(to right,  rgba(13, 0, 16, 0.55) 0%, transparent 30%, transparent 60%, rgba(0, 10, 26, 1) 100%),
+        linear-gradient(to bottom, transparent 65%, rgba(13, 0, 16, 0.95) 100%);
+    }
+
+    .special-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .special-count {
+      font-size: 0.85rem;
+      color: var(--muted, #888);
+      margin-bottom: 20px;
+    }
+    .special-loading {
+      text-align: center;
+      color: var(--muted, #888);
+      padding: 60px 20px;
+      font-size: 1rem;
+    }
+    @media (max-width: 620px) {
+      .special-hero-inner { padding: 32px 20px 28px; gap: 16px; }
+      .special-hero-title { font-size: 1.8rem; }
+      .special-hero-sub   { font-size: 0.88rem; }
+      .special-hero-photo-wrap { width: 120px; height: 170px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <section class="special-hero">
+    <div class="special-hero-inner">
+      <div class="special-hero-left">
+        <a href="index.html" class="special-back">← トップに戻る</a>
+        <p class="special-hero-label">🎬 特集</p>
+        <h2 class="special-hero-title">役所広司特集</h2>
+        <p class="special-hero-sub">日本映画界が誇る怪物俳優、その軌跡をたどる</p>
+      </div>
+      <div class="special-hero-photo-wrap" id="specialHeroPhotoWrap"></div>
+    </div>
+  </section>
+
+  <main>
+    <section class="special-section">
+      <p class="special-count" id="specialCount"></p>
+      <div id="specialGrid" class="review-grid">
+        <p class="special-loading" id="specialLoading">作品を読み込んでいます…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- レビュー詳細モーダル -->
+  <div id="modalOverlay"></div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <button id="modalClose" aria-label="閉じる">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="modal.js"></script>
+  <script src="app.js"></script>
+  <script src="special.js"></script>
+</body>
+</html>

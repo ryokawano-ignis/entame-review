@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>いいねランキング — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── ランキングヒーロー ─────────────────────────── */
+    .ranking-hero {
+      padding: 36px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .ranking-hero-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+    .ranking-updated {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .ranking-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 80px 20px;
+      font-size: 1rem;
+    }
+
+    /* ── TOP 3 大カード ─────────────────────────────── */
+    .ranking-top3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 700px) {
+      .ranking-top3 { grid-template-columns: 1fr; }
+    }
+
+    .rank-top-card {
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .rank-top-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+    .rank-top-card.gold   { border-color: #ffd84d88; }
+    .rank-top-card.silver { border-color: #b0b8c488; }
+    .rank-top-card.bronze { border-color: #cd7f3288; }
+
+    .rank-top-poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      background: #1a1a22;
+      position: relative;
+    }
+    .rank-top-poster img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform 0.3s;
+    }
+    .rank-top-card:hover .rank-top-poster img { transform: scale(1.04); }
+    .rank-top-poster-ph {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: var(--muted);
+    }
+
+    .rank-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 900;
+      z-index: 1;
+    }
+    .rank-badge.gold   { background: #ffd84d; color: #000; }
+    .rank-badge.silver { background: #b0b8c4; color: #000; }
+    .rank-badge.bronze { background: #cd7f32; color: #fff; }
+
+    .rank-top-info {
+      padding: 14px 16px 16px;
+    }
+    .rank-top-title {
+      font-size: 0.95rem; font-weight: 700;
+      line-height: 1.4; margin-bottom: 6px;
+    }
+    .rank-top-meta {
+      font-size: 0.76rem; color: var(--muted); margin-bottom: 8px;
+    }
+    .rank-top-likes {
+      font-size: 0.9rem; font-weight: 700;
+    }
+    .rank-top-likes.gold   { color: #ffd84d; }
+    .rank-top-likes.silver { color: #b0b8c4; }
+    .rank-top-likes.bronze { color: #cd7f32; }
+
+    /* ── 4位以降 リスト ─────────────────────────────── */
+    .ranking-list-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .rank-list-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .rank-list-item:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: #353540;
+    }
+    .rank-list-num {
+      flex: 0 0 36px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+    }
+    .rank-list-poster {
+      flex: 0 0 44px;
+      width: 44px; height: 64px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #1a1a22;
+    }
+    .rank-list-poster img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .rank-list-poster-ph {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .rank-list-info { flex: 1; min-width: 0; }
+    .rank-list-title {
+      font-size: 0.88rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rank-list-meta {
+      font-size: 0.72rem; color: var(--muted); margin-top: 2px;
+    }
+    .rank-list-likes {
+      flex: 0 0 auto;
+      font-size: 0.84rem; font-weight: 700; color: #ff6b8a;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="ranking.html" class="btab-item"><span class="btab-icon">🏆</span><span>ランキング</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="reviews-section">
+      <div class="section-inner">
+
+        <div class="ranking-hero">
+          <h2 class="ranking-hero-title">いいねランキング</h2>
+          <span class="ranking-updated" id="rankingUpdated"></span>
+        </div>
+
+        <p class="ranking-empty" id="rankingEmpty" style="display:none;">
+          まだいいねされた作品がありません。<br>
+          <a href="index.html" style="color:var(--text);text-decoration:underline;">レビュー一覧</a> から作品を❤️してみましょう。
+        </p>
+
+        <div class="ranking-top3" id="rankingTop3"></div>
+
+        <p class="ranking-list-label" id="rankingListLabel" style="display:none;">4位以降</p>
+        <div class="ranking-list" id="rankingList"></div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <div id="modalOverlay"></div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <button id="modalClose" aria-label="閉じる">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="modal.js"></script>
+  <script>
+    const RANK_TMDB_KEY  = 'acb6aa56f60387a6985935f25c94704e';
+    const RANK_TMDB_BASE = 'https://api.themoviedb.org/3';
+    const RANK_TMDB_IMG  = 'https://image.tmdb.org/t/p/w185';
+
+    const MEDAL = ['gold','silver','bronze'];
+    const MEDAL_LABEL = ['1st','2nd','3rd'];
+
+    // ── データ集計 ───────────────────────────────────
+    function buildRankingData() {
+      const favTitles       = new Set(JSON.parse(localStorage.getItem('favorites')        || '[]'));
+      const communityRevs   = JSON.parse(localStorage.getItem('communityReviews') || '[]');
+      const reviewLikes     = JSON.parse(localStorage.getItem('reviewLikes')      || '{}');
+      const myRevs          = JSON.parse(localStorage.getItem('myReviews')        || '[]');
+      const allMaster       = [...reviews, ...myRevs];
+
+      const scoreMap = {};
+
+      // お気に入り：各タイトル = 1いいね
+      favTitles.forEach(title => {
+        if (!scoreMap[title]) scoreMap[title] = { count: 0, rev: null };
+        scoreMap[title].count += 1;
+      });
+
+      // コミュニティレビューのいいね数を加算
+      communityRevs.forEach(cr => {
+        const likes = reviewLikes[String(cr.id)] || 0;
+        if (likes > 0) {
+          if (!scoreMap[cr.title]) scoreMap[cr.title] = { count: 0, rev: null };
+          scoreMap[cr.title].count += likes;
+        }
+      });
+
+      // 各タイトルの詳細データを付与
+      Object.keys(scoreMap).forEach(title => {
+        scoreMap[title].rev =
+          allMaster.find(r => r.title === title) ||
+          communityRevs.find(r => r.title === title) ||
+          { title, genre: '', year: '', image: '', posterUrl: '' };
+      });
+
+      return Object.entries(scoreMap)
+        .filter(([, v]) => v.count > 0)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 100)
+        .map(([title, v], i) => ({ rank: i + 1, title, count: v.count, rev: v.rev }));
+    }
+
+    // ── カード クリック ──────────────────────────────
+    function handleCardClick(title) {
+      const myRevs    = JSON.parse(localStorage.getItem('myReviews') || '[]');
+      const allMaster = [...reviews, ...myRevs];
+      const found     = allMaster.find(r => r.title === title);
+      if (found && typeof openModal === 'function') openModal(found);
+    }
+
+    // ── ランキング描画 ───────────────────────────────
+    function renderRanking() {
+      const ranked  = buildRankingData();
+      const top3El  = document.getElementById('rankingTop3');
+      const listEl  = document.getElementById('rankingList');
+      const emptyEl = document.getElementById('rankingEmpty');
+      const labelEl = document.getElementById('rankingListLabel');
+      const updEl   = document.getElementById('rankingUpdated');
+
+      // 最終更新
+      const now = new Date();
+      updEl.textContent = `最終更新：${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      if (ranked.length === 0) {
+        emptyEl.style.display = '';
+        top3El.style.display  = 'none';
+        return;
+      }
+
+      // TOP 3
+      const top3 = ranked.slice(0, 3);
+      top3El.innerHTML = top3.map((item, i) => {
+        const medal = MEDAL[i];
+        const r     = item.rev;
+        const genre = r.genre ? genreLabel(r.genre) : (r.genre || '');
+        const year  = r.year  || '';
+        return `
+          <div class="rank-top-card ${medal}" onclick="handleCardClick('${item.title.replace(/'/g,"\\'")}')">
+            <div class="rank-top-poster" data-rank-title="${item.title.replace(/"/g,'&quot;')}">
+              <div class="rank-top-poster-ph">🎬</div>
+              <div class="rank-badge ${medal}">${item.rank}</div>
+            </div>
+            <div class="rank-top-info">
+              <p class="rank-top-title">${item.title}</p>
+              <p class="rank-top-meta">${[genre, year].filter(Boolean).join('　')}</p>
+              <p class="rank-top-likes ${medal}">❤️ ${item.count}</p>
+            </div>
+          </div>`;
+      }).join('');
+
+      // 4位以降
+      const rest = ranked.slice(3);
+      if (rest.length > 0) {
+        labelEl.style.display = '';
+        listEl.innerHTML = rest.map(item => {
+          const r     = item.rev;
+          const genre = r.genre ? genreLabel(r.genre) : (r.genre || '');
+          const year  = r.year  || '';
+          return `
+            <div class="rank-list-item" onclick="handleCardClick('${item.title.replace(/'/g,"\\'")}')">
+              <span class="rank-list-num">${item.rank}</span>
+              <div class="rank-list-poster" data-rank-title="${item.title.replace(/"/g,'&quot;')}">
+                <div class="rank-list-poster-ph">🎬</div>
+              </div>
+              <div class="rank-list-info">
+                <p class="rank-list-title">${item.title}</p>
+                <p class="rank-list-meta">${[genre, year].filter(Boolean).join('　')}</p>
+              </div>
+              <span class="rank-list-likes">❤️ ${item.count}</span>
+            </div>`;
+        }).join('');
+      }
+
+      // ポスター遅延取得
+      loadRankPosters();
+    }
+
+    // ── ポスター取得（バッチ） ───────────────────────
+    function genreLabel(g) {
+      const map = { movie:'映画', anime:'アニメ', drama:'ドラマ', manga:'漫画' };
+      return map[g] || g || '';
+    }
+
+    async function loadRankPosters() {
+      const targets = document.querySelectorAll('[data-rank-title]');
+      for (const el of targets) {
+        const title = el.dataset.rankTitle;
+        try {
+          const res  = await fetch(`${RANK_TMDB_BASE}/search/multi?api_key=${RANK_TMDB_KEY}&language=ja-JP&query=${encodeURIComponent(title)}`);
+          const data = await res.json();
+          const hit  = (data.results || []).find(r => r.poster_path);
+          if (!hit) continue;
+          const img = document.createElement('img');
+          img.src     = RANK_TMDB_IMG + hit.poster_path;
+          img.alt     = title;
+          img.loading = 'lazy';
+          const ph = el.querySelector('.rank-top-poster-ph, .rank-list-poster-ph');
+          if (ph) ph.replaceWith(img);
+        } catch(e) {}
+      }
+    }
+
+    renderRanking();
+  </script>
+</body>
+</html>

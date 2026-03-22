@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>記事 — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="blog.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo">ENTAME<span class="logo-accent">REVIEW</span></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+      <div class="header-btns">
+        <a href="index.html" class="header-nav-link">レビュー一覧</a>
+        <a href="blog.html" class="header-nav-link">ブログ</a>
+        <a href="osusume.html" class="header-nav-link">管理人おすすめ</a>
+        <a href="actor.html" class="header-nav-link">俳優・声優</a>
+      </div>
+    </div>
+  </header>
+
+  <div id="postRoot"></div>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- 作品詳細モーダル -->
+  <div id="movieModalOverlay"></div>
+  <div id="movieModal" role="dialog" aria-modal="true">
+    <button id="movieModalClose" aria-label="閉じる">✕</button>
+    <div id="movieModalContent"></div>
+  </div>
+
+  <!-- 編集モーダル -->
+  <div id="blogEditOverlay"></div>
+  <div id="blogEditModal" role="dialog" aria-modal="true">
+    <button id="blogEditClose" aria-label="閉じる">✕</button>
+    <h3 class="blog-modal-title">記事を編集する</h3>
+    <form id="blogEditForm">
+      <div class="form-group">
+        <label class="form-label">タイトル <span class="form-required">*</span></label>
+        <input type="text" id="eTitle" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ <span class="form-required">*</span></label>
+        <select id="eCat" class="form-input" required>
+          <option value="映画コラム">映画コラム</option>
+          <option value="アニメ考察">アニメ考察</option>
+          <option value="おすすめ特集">おすすめ特集</option>
+          <option value="雑記">雑記</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">サムネイル画像URL（任意）</label>
+        <input type="text" id="eThumb" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">本文 <span class="form-required">*</span></label>
+        <textarea id="eBody" class="form-input form-textarea" rows="14" required></textarea>
+      </div>
+      <button type="submit" class="form-submit">保存する</button>
+    </form>
+  </div>
+
+  <style>
+    /* ── 記事ヘッダー：背景スライド ＋ 中央人物写真 ── */
+    .post-hero-banner {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      overflow: hidden;
+      background: #0e0e0f;
+    }
+
+    /* 背景スライド層 */
+    .post-hero-bg {
+      position: absolute;
+      inset: -20px;
+      display: flex;
+      align-items: center;
+      filter: blur(6px);
+      transform: scale(1.06);
+      z-index: 0;
+    }
+    .post-hero-slide-track {
+      display: flex;
+      gap: 8px;
+      will-change: transform;
+    }
+    .post-hero-slide-track .slide-item {
+      flex-shrink: 0;
+    }
+    .post-hero-slide-track .slide-item img {
+      height: 360px;
+      width: auto;
+      display: block;
+      opacity: 0.4;
+    }
+    @keyframes postHeroSlide {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(var(--slide-dist, -2400px)); }
+    }
+
+    /* 暗めオーバーレイ */
+    .post-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(14,14,15,0.55);
+      z-index: 1;
+    }
+
+    /* 左右フェードアウト */
+    .post-hero-fade-l,
+    .post-hero-fade-r {
+      position: absolute;
+      top: 0; width: 180px; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .post-hero-fade-l { left: 0;  background: linear-gradient(to right, #0e0e0f, transparent); }
+    .post-hero-fade-r { right: 0; background: linear-gradient(to left,  #0e0e0f, transparent); }
+
+    /* 中央人物写真 */
+    .post-hero-person {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      width: 320px;
+      height: 440px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    .post-hero-person img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      display: block;
+    }
+    /* 写真の上下グラデーション */
+    .post-hero-person::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 60px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .post-hero-person::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 70px;
+      background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .post-hero-person-ph {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+    }
+
+    @media (max-width: 600px) {
+      .post-hero-banner { height: 340px; }
+      .post-hero-person { width: 200px; height: 290px; }
+      .post-hero-slide-track .slide-item img { height: 300px; }
+    }
+
+    /* ── 記事本文 2カラムレイアウト ─────────────────── */
+    .post-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+    .post-sidebar {
+      flex: 0 0 180px;
+      width: 180px;
+    }
+    .post-sidebar-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .post-sidebar-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 10px;
+    }
+    .post-sidebar-poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #1a1a22;
+    }
+    .post-sidebar-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .post-sidebar-item:hover .post-sidebar-poster img {
+      opacity: 0.8;
+      transform: scale(1.03);
+    }
+    .post-sidebar-poster-title {
+      font-size: 0.66rem;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .post-main { flex: 1; min-width: 0; }
+
+    /* ── 作品詳細モーダル ──────────────────────────── */
+    #movieModalOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); z-index: 500;
+      backdrop-filter: blur(4px);
+    }
+    #movieModalOverlay.active { display: block; }
+    #movieModal {
+      display: none; position: fixed;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      z-index: 501; background: #14141a;
+      border: 1px solid var(--border); border-radius: 16px;
+      width: 90%; max-width: 560px; max-height: 90vh;
+      overflow-y: auto; padding: 28px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.8);
+    }
+    #movieModal.active { display: block; }
+    #movieModalClose {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; color: var(--muted);
+      font-size: 1.2rem; cursor: pointer; line-height: 1;
+    }
+    #movieModalClose:hover { color: var(--text); }
+    .movie-modal-inner {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .movie-modal-poster {
+      flex: 0 0 140px; width: 140px; height: 210px;
+      border-radius: 8px; overflow: hidden; background: #1a1a22;
+    }
+    .movie-modal-poster img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .movie-modal-info { flex: 1; min-width: 0; }
+    .movie-modal-title {
+      font-size: 1.1rem; font-weight: 800;
+      line-height: 1.4; margin-bottom: 8px;
+    }
+    .movie-modal-meta {
+      font-size: 0.78rem; color: var(--muted); margin-bottom: 12px;
+    }
+    .movie-modal-overview {
+      font-size: 0.84rem; color: #c8c8d8; line-height: 1.75;
+    }
+    .movie-modal-loading {
+      text-align: center; color: var(--muted);
+      padding: 40px 0; font-size: 0.9rem;
+    }
+
+    /* post-inner の max-width 制限を解除 */
+    .post-inner {
+      max-width: none !important;
+      padding: 36px 1.2rem 0 !important;
+    }
+
+    @media (max-width: 800px) {
+      .post-layout { flex-direction: column; }
+      .post-sidebar {
+        width: 100%; max-height: none; overflow-y: visible;
+        position: static;
+        display: flex; flex-wrap: wrap; gap: 8px;
+      }
+      .post-sidebar-label { width: 100%; }
+      .post-sidebar-item { width: calc(25% - 6px); margin-bottom: 0; }
+    }
+  </style>
+
+  <script src="blog.js"></script>
+  <script>
+    const CAT_ICON = {
+      '映画コラム': '🎬',
+      'アニメ考察': '✨',
+      'おすすめ特集': '👑',
+      '雑記': '📝'
+    };
+
+    const TMDB_KEY  = 'acb6aa56f60387a6985935f25c94704e';
+    const TMDB_BASE = 'https://api.themoviedb.org/3';
+    const TMDB_W185 = 'https://image.tmdb.org/t/p/w185';
+    const TMDB_W300 = 'https://image.tmdb.org/t/p/w300';
+
+    const CAT_BG = {
+      '映画コラム':  'linear-gradient(135deg,#3d0a0a,#5a1010)',
+      'アニメ考察':  'linear-gradient(135deg,#1a083d,#2d0f5a)',
+      'おすすめ特集':'linear-gradient(135deg,#083d1a,#0f5a28)',
+      '雑記':        'linear-gradient(135deg,#1a1a22,#252532)'
+    };
+
+    let myBlogPosts = JSON.parse(localStorage.getItem('myBlogPosts') || '[]');
+
+    function saveMyBlogPosts() {
+      localStorage.setItem('myBlogPosts', JSON.stringify(myBlogPosts));
+    }
+
+    function getAllPosts() {
+      return [...blogPosts, ...myBlogPosts];
+    }
+
+    // URL から id 取得
+    const params   = new URLSearchParams(location.search);
+    const postId   = params.get('id');
+    const allPosts = getAllPosts();
+    // eslint-disable-next-line eqeqeq
+    const post     = allPosts.find(p => p.id == postId);
+    const isMyPost = myBlogPosts.some(p => p.id == postId);
+
+    // ページタイトル更新
+    if (post) document.title = `${post.title} — ENTAME REVIEW`;
+
+    function buildHeroHtml(p) {
+      const icon = CAT_ICON[p.category] || '📝';
+      const bg   = CAT_BG[p.category]   || CAT_BG['雑記'];
+      let personInner;
+      if (p.thumbnail) {
+        personInner = `<img src="${p.thumbnail}" alt="${p.title}">`;
+      } else if (p.personQuery) {
+        personInner = `<div id="heroPersonPh" class="post-hero-person-ph" style="background:${bg};">${icon}</div>`;
+      } else {
+        personInner = `<div class="post-hero-person-ph" style="background:${bg};">${icon}</div>`;
+      }
+      return `
+        <div class="post-hero-banner">
+          <div class="post-hero-bg">
+            <div class="post-hero-slide-track" id="heroSlideTrack"></div>
+          </div>
+          <div class="post-hero-overlay"></div>
+          <div class="post-hero-fade-l"></div>
+          <div class="post-hero-fade-r"></div>
+          <div class="post-hero-person">${personInner}</div>
+        </div>`;
+    }
+
+    function buildSlide(urls) {
+      const track = document.getElementById('heroSlideTrack');
+      if (!track || urls.length === 0) return;
+      const doubled = [...urls, ...urls];
+      track.innerHTML = doubled.map(u =>
+        `<div class="slide-item"><img src="${u}" loading="lazy"></div>`
+      ).join('');
+      const itemW = 132; // ポスター幅(w185≒124px) + gap(8px)
+      const dist  = urls.length * itemW;
+      track.style.setProperty('--slide-dist', `-${dist}px`);
+      track.style.animation = `postHeroSlide ${urls.length * 2.2}s linear infinite`;
+    }
+
+    async function loadHeroAssets(p) {
+      // personQuery がある記事（役所広司など）→ 人物写真 ＆ 出演作ポスター
+      if (p.personQuery) {
+        try {
+          const res    = await fetch(`${TMDB_BASE}/search/person?api_key=${TMDB_KEY}&language=ja-JP&query=${encodeURIComponent(p.personQuery)}`);
+          const data   = await res.json();
+          const person = data.results && data.results[0];
+          const ph     = document.getElementById('heroPersonPh');
+          if (person && person.profile_path && ph) {
+            const img = document.createElement('img');
+            img.src   = TMDB_W300 + person.profile_path;
+            ph.replaceWith(img);
+          }
+          if (person) {
+            // 背景スライド：出演作品
+            const cRes   = await fetch(`${TMDB_BASE}/person/${person.id}/movie_credits?api_key=${TMDB_KEY}&language=ja-JP`);
+            const cData  = await cRes.json();
+            const sorted = (cData.cast || [])
+              .filter(m => m.poster_path)
+              .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+            buildSlide(sorted.slice(0, 20).map(m => TMDB_W185 + m.poster_path));
+
+            // サイドバー：指定4作品をTMDB検索
+            const sidebarTitles = ['PERFECT DAYS', 'クリーピー 偽りの隣人', '三度目の殺人', 'すばらしき世界'];
+            const sidebarMovies = await Promise.all(sidebarTitles.map(async title => {
+              try {
+                const r = await fetch(`${TMDB_BASE}/search/movie?api_key=${TMDB_KEY}&language=ja-JP&query=${encodeURIComponent(title)}`);
+                const d = await r.json();
+                return d.results && d.results[0];
+              } catch(e) { return null; }
+            }));
+            buildSidebar(sidebarMovies.filter(m => m && m.poster_path));
+            return;
+          }
+        } catch(e) {}
+      }
+      // デフォルト：人気映画
+      try {
+        const res  = await fetch(`${TMDB_BASE}/movie/popular?api_key=${TMDB_KEY}&language=ja-JP`);
+        const data = await res.json();
+        const urls = (data.results || [])
+          .filter(m => m.poster_path)
+          .slice(0, 20)
+          .map(m => TMDB_W185 + m.poster_path);
+        buildSlide(urls);
+      } catch(e) {}
+    }
+
+    function buildSidebar(movies) {
+      const list = document.getElementById('postSidebarList');
+      if (!list) return;
+      list.innerHTML = movies.slice(0, 15).map(m => `
+        <div class="post-sidebar-item" onclick="openMovieModal(${m.id},'${m.title.replace(/'/g,"\\'")}','${TMDB_W185 + m.poster_path}')" style="cursor:pointer;">
+          <div class="post-sidebar-poster">
+            <img src="${TMDB_W185 + m.poster_path}" alt="${m.title}" loading="lazy">
+          </div>
+          <p class="post-sidebar-poster-title">${m.title}</p>
+        </div>
+      `).join('');
+    }
+
+    // ── 作品詳細モーダル ──────────────────────────────
+    const _mOverlay = document.getElementById('movieModalOverlay');
+    const _mModal   = document.getElementById('movieModal');
+    const _mContent = document.getElementById('movieModalContent');
+
+    document.getElementById('movieModalClose').addEventListener('click', closeMovieModal);
+    _mOverlay.addEventListener('click', closeMovieModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMovieModal(); });
+
+    function closeMovieModal() {
+      _mOverlay.classList.remove('active');
+      _mModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    async function openMovieModal(tmdbId, title, posterUrl) {
+      _mContent.innerHTML = `<p class="movie-modal-loading">読み込んでいます…</p>`;
+      _mOverlay.classList.add('active');
+      _mModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      try {
+        const res  = await fetch(`${TMDB_BASE}/movie/${tmdbId}?api_key=${TMDB_KEY}&language=ja-JP`);
+        const data = await res.json();
+        const year = (data.release_date || '').slice(0, 4);
+        const genres = (data.genres || []).map(g => g.name).join(' / ');
+        _mContent.innerHTML = `
+          <div class="movie-modal-inner">
+            <div class="movie-modal-poster">
+              <img src="${posterUrl}" alt="${data.title || title}">
+            </div>
+            <div class="movie-modal-info">
+              <p class="movie-modal-title">${data.title || title}</p>
+              <p class="movie-modal-meta">${year}${genres ? '　' + genres : ''}</p>
+              <p class="movie-modal-overview">${data.overview || '概要情報がありません。'}</p>
+            </div>
+          </div>`;
+      } catch(e) {
+        _mContent.innerHTML = `
+          <div class="movie-modal-inner">
+            <div class="movie-modal-poster"><img src="${posterUrl}" alt="${title}"></div>
+            <div class="movie-modal-info"><p class="movie-modal-title">${title}</p></div>
+          </div>`;
+      }
+    }
+
+    function buildBodyHtml(text) {
+      return text.split('\n').filter(l => l.trim() !== '').map(l => `<p>${l}</p>`).join('');
+    }
+
+    function buildRelatedHtml(currentPost) {
+      const related = allPosts
+        .filter(p => p.published && p.category === currentPost.category && p.id != currentPost.id)
+        .slice(0, 3);
+      if (related.length === 0) return '';
+      const icon = CAT_ICON[currentPost.category] || '📝';
+      return `
+        <div class="post-related-section">
+          <p class="post-related-title">同じカテゴリの記事</p>
+          <div class="post-related-grid">
+            ${related.map(p => {
+              const thumbHtml = p.thumbnail
+                ? `<img src="${p.thumbnail}" alt="${p.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"post-related-thumb-ph\\" data-cat=\\"${p.category}\\">${icon}</div>'">`
+                : `<div class="post-related-thumb-ph" data-cat="${p.category}">${icon}</div>`;
+              return `
+                <a class="post-related-card" href="blog-post.html?id=${p.id}">
+                  <div class="post-related-thumb">${thumbHtml}</div>
+                  <div class="post-related-info">
+                    <p class="post-related-card-title">${p.title}</p>
+                  </div>
+                </a>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderPost() {
+      const root = document.getElementById('postRoot');
+      if (!post) {
+        root.innerHTML = `
+          <div style="text-align:center;padding:80px 20px;">
+            <p style="color:var(--muted);font-size:1rem;margin-bottom:20px;">記事が見つかりませんでした</p>
+            <a href="blog.html" style="color:var(--text);text-decoration:underline;">← ブログ一覧に戻る</a>
+          </div>`;
+        return;
+      }
+
+      root.innerHTML = `
+        <section class="post-section">
+          <div class="section-inner" style="max-width:1100px">
+            <a class="post-back-link" href="blog.html">← ブログ一覧に戻る</a>
+          </div>
+          ${buildHeroHtml(post)}
+          <div class="post-inner">
+            <div class="post-meta">
+              <span class="blog-cat-badge" data-cat="${post.category}">${CAT_ICON[post.category] || ''} ${post.category}</span>
+              <span class="blog-card-date">${post.createdAt || ''}</span>
+            </div>
+            <h1 class="post-title">${post.title}</h1>
+            <div class="post-layout">
+              ${post.personQuery ? `
+              <aside class="post-sidebar" id="postSidebar">
+                <span class="post-sidebar-label">出演作品</span>
+                <div id="postSidebarList"></div>
+              </aside>` : ''}
+              <div class="post-main">
+                <div class="post-body">${buildBodyHtml(post.body)}</div>
+                ${isMyPost ? `
+                  <div class="post-actions">
+                    <button class="post-edit-btn" id="postEditBtn">✏️ 編集する</button>
+                    <button class="post-delete-btn" id="postDeleteBtn">🗑️ 削除する</button>
+                  </div>` : ''}
+              </div>
+            </div>
+          </div>
+          ${buildRelatedHtml(post)}
+        </section>`;
+
+      if (isMyPost) {
+        document.getElementById('postEditBtn').addEventListener('click', openEditModal);
+        document.getElementById('postDeleteBtn').addEventListener('click', deletePost);
+      }
+    }
+
+    // 削除
+    function deletePost() {
+      if (!confirm(`「${post.title}」を削除しますか？`)) return;
+      myBlogPosts = myBlogPosts.filter(p => p.id != postId);
+      saveMyBlogPosts();
+      location.href = 'blog.html';
+    }
+
+    // 編集モーダル
+    function openEditModal() {
+      document.getElementById('eTitle').value = post.title;
+      document.getElementById('eCat').value   = post.category;
+      document.getElementById('eThumb').value = post.thumbnail || '';
+      document.getElementById('eBody').value  = post.body;
+      document.getElementById('blogEditOverlay').classList.add('active');
+      document.getElementById('blogEditModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeEditModal() {
+      document.getElementById('blogEditOverlay').classList.remove('active');
+      document.getElementById('blogEditModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('blogEditClose').addEventListener('click', closeEditModal);
+    document.getElementById('blogEditOverlay').addEventListener('click', closeEditModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
+
+    document.getElementById('blogEditForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const idx = myBlogPosts.findIndex(p => p.id == postId);
+      if (idx === -1) return;
+      myBlogPosts[idx].title     = document.getElementById('eTitle').value.trim();
+      myBlogPosts[idx].category  = document.getElementById('eCat').value;
+      myBlogPosts[idx].thumbnail = document.getElementById('eThumb').value.trim();
+      myBlogPosts[idx].body      = document.getElementById('eBody').value.trim();
+      saveMyBlogPosts();
+      closeEditModal();
+      // ページ再描画
+      Object.assign(post, myBlogPosts[idx]);
+      document.title = `${post.title} — ENTAME REVIEW`;
+      renderPost();
+    });
+
+    // 編集モーダルのスタイル（blog.css と同じパターンを流用）
+    const editStyle = document.createElement('style');
+    editStyle.textContent = `
+      #blogEditOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:400; backdrop-filter:blur(4px); }
+      #blogEditOverlay.active { display:block; }
+      #blogEditModal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:401; background:#14141a; border:1px solid var(--border); border-radius:16px; width:90%; max-width:660px; max-height:92vh; overflow-y:auto; padding:32px 32px 28px; box-shadow:0 8px 48px rgba(0,0,0,0.7); }
+      #blogEditModal.active { display:block; }
+      #blogEditClose { position:absolute; top:16px; right:18px; background:none; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; line-height:1; }
+      #blogEditClose:hover { color:var(--text); }
+    `;
+    document.head.appendChild(editStyle);
+
+    renderPost();
+    if (post) loadHeroAssets(post);
+  </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなのレビュー — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item" id="sideWriteBtn">
+        <span class="sidebar-icon">✏️</span>
+        <span class="sidebar-text">あなたのレビューを投稿</span>
+      </a>
+      <a href="index.html" class="sidebar-item" id="sideDiagBtn">
+        <span class="sidebar-icon">🎯</span>
+        <span class="sidebar-text">あなたにぴったりの作品を探す</span>
+      </a>
+      <a href="reviews.html" class="sidebar-item">
+        <span class="sidebar-icon">💬</span>
+        <span class="sidebar-text">みんなのレビュー</span>
+      </a>
+      <a href="blog.html" class="sidebar-item">
+        <span class="sidebar-icon">📝</span>
+        <span class="sidebar-text">コラム・考察を読む</span>
+      </a>
+      <a href="osusume.html" class="sidebar-item">
+        <span class="sidebar-icon">👑</span>
+        <span class="sidebar-text">管理人が厳選した作品</span>
+      </a>
+      <a href="ranking.html" class="sidebar-item">
+        <span class="sidebar-icon">🏆</span>
+        <span class="sidebar-text">いいねランキング</span>
+      </a>
+      <a href="actor.html" class="sidebar-item">
+        <span class="sidebar-icon">🎭</span>
+        <span class="sidebar-text">お気に入りの俳優を探す</span>
+      </a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+    </div>
+  </header>
+
+  <section class="community-hero">
+    <div class="community-hero-inner">
+      <a href="index.html" class="special-back">← トップに戻る</a>
+      <h1 class="community-hero-title">みんなのレビュー</h1>
+      <p class="community-hero-sub">みなさんが投稿したレビューをまとめて読めます。</p>
+    </div>
+  </section>
+
+  <main>
+    <section class="community-section" id="communityList">
+      <p class="community-empty" id="communityEmpty">まだレビューがありません。<br>最初のレビューを投稿してみましょう！</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- 詳細モーダル -->
+  <div id="modalOverlay"></div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <button id="modalClose" aria-label="閉じる">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="modal.js"></script>
+  <script>
+    const genreLabels = { movie: '映画', drama: 'ドラマ', anime: 'アニメ' };
+    const genreColors = { movie: '#f0997b', drama: '#ed93b1', anime: '#7f77dd' };
+
+    function renderStars(n) {
+      return '★'.repeat(n || 0) + '☆'.repeat(5 - (n || 0));
+    }
+
+    function getLikes() {
+      return JSON.parse(localStorage.getItem('reviewLikes') || '{}');
+    }
+    function saveLikes(likes) {
+      localStorage.setItem('reviewLikes', JSON.stringify(likes));
+    }
+    function getLiked() {
+      return JSON.parse(localStorage.getItem('reviewLiked') || '{}');
+    }
+    function saveLiked(liked) {
+      localStorage.setItem('reviewLiked', JSON.stringify(liked));
+    }
+
+    function toggleLike(id, btn) {
+      const likes = getLikes();
+      const liked = getLiked();
+      const key   = String(id);
+      if (liked[key]) {
+        liked[key] = false;
+        likes[key] = Math.max(0, (likes[key] || 1) - 1);
+      } else {
+        liked[key] = true;
+        likes[key] = (likes[key] || 0) + 1;
+      }
+      saveLikes(likes);
+      saveLiked(liked);
+      btn.classList.toggle('active', !!liked[key]);
+      btn.querySelector('.like-count').textContent = likes[key] || 0;
+    }
+
+    function renderCommunity() {
+      const list    = document.getElementById('communityList');
+      const empty   = document.getElementById('communityEmpty');
+      const reviews = JSON.parse(localStorage.getItem('communityReviews') || '[]');
+      const likes   = getLikes();
+      const liked   = getLiked();
+
+      if (reviews.length === 0) {
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const cards = reviews.map(r => {
+        const color   = genreColors[r.genre] || '#888';
+        const gLabel  = genreLabels[r.genre] || '';
+        const poster  = r.posterUrl
+          ? `<img src="${r.posterUrl}" alt="${r.title}" loading="lazy" style="cursor:pointer;transition:opacity 0.2s;" onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'">`
+          : `<div class="community-card-poster-ph" style="cursor:pointer;">🎞️</div>`;
+        const date    = r.createdAt ? r.createdAt.slice(0, 10) : '';
+        const tags    = (r.tags || []).map(t => `<span class="card-tag" style="background:${color}22;color:${color};border:1px solid ${color}44;">${t}</span>`).join('');
+        const key     = String(r.id);
+        const count   = likes[key] || 0;
+        const isLiked = !!liked[key];
+        return `
+          <div class="community-card">
+            <div class="community-card-poster" data-cr-id="${r.id}" style="cursor:pointer;">${poster}</div>
+            <div class="community-card-body">
+              <div class="community-card-meta">
+                <span class="genre-tag" style="color:${color};background:${color}22;">${gLabel}</span>
+                ${r.year ? `<span style="font-size:0.75rem;color:#888;">${r.year}年</span>` : ''}
+              </div>
+              <p class="community-card-title">${r.title}</p>
+              <p class="community-card-stars">${renderStars(r.stars)}</p>
+              <p class="community-card-body-text">${r.body.replace(/\n/g,'<br>')}</p>
+              ${tags ? `<div class="card-tags" style="margin-top:6px;">${tags}</div>` : ''}
+              <div class="community-card-footer">
+                <span class="community-card-nick">👤 ${r.nickname || '匿名'}</span>
+                <span class="community-card-date">${date}</span>
+                <button class="like-btn${isLiked ? ' active' : ''}" data-id="${r.id}">
+                  <span class="like-heart">♥</span><span class="like-count">${count}</span>
+                </button>
+                <button class="cr-line-btn" data-title="${r.title}" data-stars="${r.stars || 0}">LINE</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      list.innerHTML = cards + `<p class="community-empty" id="communityEmpty" style="display:none;"></p>`;
+
+      list.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleLike(btn.dataset.id, btn));
+      });
+
+      list.querySelectorAll('.cr-line-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const title = btn.dataset.title;
+          const stars = parseInt(btn.dataset.stars, 10) || 0;
+          const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+          const text = `【${title}】を見ました！おすすめ度：${starStr} #ENTAMEREVIEWで見つけた`;
+          window.open('https://social-plugins.line.me/lineit/share?text=' + encodeURIComponent(text), '_blank');
+        });
+      });
+
+      // ポスタークリック → 詳細モーダル
+      const crMap = {};
+      reviews.forEach(r => { crMap[String(r.id)] = r; });
+
+      list.querySelectorAll('.community-card-poster[data-cr-id]').forEach(el => {
+        el.addEventListener('click', () => {
+          const cr = crMap[el.dataset.crId];
+          if (!cr) return;
+          // data.js の reviews から同名作品を探す
+          const myRevs = JSON.parse(localStorage.getItem('myReviews') || '[]');
+          const allMaster = [...(window.reviews || []), ...myRevs];
+          const found = allMaster.find(r => r.title === cr.title);
+          if (found && typeof openModal === 'function') {
+            openModal(found);
+          } else if (typeof openModal === 'function') {
+            // コミュニティレビューのデータで代用
+            openModal({
+              title:    cr.title,
+              genre:    cr.genre,
+              year:     cr.year,
+              synopsis: cr.synopsis || '',
+              image:    cr.posterUrl || '',
+              stars:    cr.stars,
+              recommend: cr.body || '',
+              creator:  '',
+              cast:     []
+            });
+          }
+        });
+      });
+    }
+
+    renderCommunity();
+  </script>
+</body>
+</html>

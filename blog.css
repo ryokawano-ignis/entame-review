@@ -1,0 +1,356 @@
+/* ── ブログ カテゴリ設定 ──────────────────────────── */
+.blog-section { padding: 48px 0 64px; }
+
+/* カテゴリフィルター アクティブ色 */
+.blog-cat-btn.active[data-cat="all"]        { background: #fff;     color: #0e0e14; border-color: #fff;     font-weight: 700; }
+.blog-cat-btn.active[data-cat="映画コラム"]  { background: #e84545; color: #fff;    border-color: #e84545; font-weight: 700; }
+.blog-cat-btn.active[data-cat="アニメ考察"] { background: #b44fcb; color: #fff;    border-color: #b44fcb; font-weight: 700; }
+.blog-cat-btn.active[data-cat="おすすめ特集"]{ background: #2dbd6e; color: #fff;    border-color: #2dbd6e; font-weight: 700; }
+.blog-cat-btn.active[data-cat="雑記"]       { background: #7777aa; color: #fff;    border-color: #7777aa; font-weight: 700; }
+
+/* ── ブログカードグリッド ─────────────────────────── */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+
+.blog-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.blog-card:hover {
+  transform: translateY(-3px);
+  border-color: #353540;
+  box-shadow: var(--shadow);
+}
+
+/* ── サムネイル ─────────────────────────────────────── */
+.blog-thumb {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.blog-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.3s;
+}
+.blog-card:hover .blog-thumb img { transform: scale(1.04); }
+
+.blog-thumb-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+}
+
+/* カテゴリ別 placeholder 色 */
+.blog-thumb-ph[data-cat="映画コラム"]  { background: linear-gradient(135deg, #3d0a0a, #5a1010); }
+.blog-thumb-ph[data-cat="アニメ考察"] { background: linear-gradient(135deg, #1a083d, #2d0f5a); }
+.blog-thumb-ph[data-cat="おすすめ特集"]{ background: linear-gradient(135deg, #083d1a, #0f5a28); }
+.blog-thumb-ph[data-cat="雑記"]       { background: linear-gradient(135deg, #1a1a22, #252532); }
+
+/* ── カード本体テキスト ─────────────────────────────── */
+.blog-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.blog-cat-badge {
+  font-size: 0.70rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.blog-cat-badge[data-cat="映画コラム"]  { background: #e8454522; color: #e84545; border: 1px solid #e8454544; }
+.blog-cat-badge[data-cat="アニメ考察"] { background: #b44fcb22; color: #b44fcb; border: 1px solid #b44fcb44; }
+.blog-cat-badge[data-cat="おすすめ特集"]{ background: #2dbd6e22; color: #2dbd6e; border: 1px solid #2dbd6e44; }
+.blog-cat-badge[data-cat="雑記"]       { background: #7777aa22; color: #9999cc; border: 1px solid #7777aa44; }
+
+.blog-card-date { font-size: 0.74rem; color: var(--muted); }
+
+.blog-card-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.blog-card-excerpt {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── 新規記事ボタン ─────────────────────────────────── */
+.blog-write-btn {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: linear-gradient(135deg, rgba(45,189,110,0.15), rgba(45,189,110,0.25));
+  color: #5edd94;
+  font-size: 0.92rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.blog-write-btn:hover {
+  background: linear-gradient(135deg, rgba(45,189,110,0.28), rgba(45,189,110,0.38));
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+
+/* ── 記事投稿モーダル ────────────────────────────────── */
+#blogWriteOverlay,
+#blogWriteModal > .write-overlay { display: none; }
+
+#blogWriteOverlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 400;
+  backdrop-filter: blur(4px);
+}
+#blogWriteOverlay.active { display: block; }
+
+#blogWriteModal {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 401;
+  background: #14141a;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 660px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 32px 32px 28px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.7);
+}
+#blogWriteModal.active { display: block; }
+
+#blogWriteClose {
+  position: absolute;
+  top: 16px; right: 18px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+}
+#blogWriteClose:hover { color: var(--text); }
+
+.blog-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 22px;
+  letter-spacing: 0.04em;
+}
+
+/* ── 記事詳細ページ ─────────────────────────────────── */
+.post-section { padding: 0 0 64px; }
+
+.post-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--muted);
+  padding: 16px 20px 0;
+  max-width: 1100px;
+  margin: 0 auto;
+  transition: color 0.15s;
+}
+.post-back-link:hover { color: var(--text); }
+
+.post-hero {
+  width: 100%;
+  max-height: 420px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.post-hero img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+.post-hero-ph {
+  width: 100%;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+.post-hero-ph[data-cat="映画コラム"]  { background: linear-gradient(135deg, #3d0a0a, #5a1010); }
+.post-hero-ph[data-cat="アニメ考察"] { background: linear-gradient(135deg, #1a083d, #2d0f5a); }
+.post-hero-ph[data-cat="おすすめ特集"]{ background: linear-gradient(135deg, #083d1a, #0f5a28); }
+.post-hero-ph[data-cat="雑記"]       { background: linear-gradient(135deg, #1a1a22, #252532); }
+
+.post-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 36px 20px 0;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.post-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.4;
+  margin-bottom: 32px;
+  letter-spacing: 0.02em;
+}
+
+.post-body {
+  font-size: 1.0rem;
+  line-height: 1.9;
+  color: #d8d8e8;
+}
+.post-body p {
+  margin-bottom: 1.4em;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.post-edit-btn,
+.post-delete-btn {
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  font-size: 0.86rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.post-edit-btn {
+  background: transparent;
+  color: var(--text);
+}
+.post-edit-btn:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: #444460;
+}
+.post-delete-btn {
+  background: transparent;
+  color: #e05555;
+  border-color: #e0555533;
+}
+.post-delete-btn:hover {
+  background: rgba(224,85,85,0.1);
+  border-color: #e05555;
+}
+
+/* ── 関連記事 ────────────────────────────────────────── */
+.post-related-section {
+  max-width: 760px;
+  margin: 48px auto 0;
+  padding: 0 20px;
+}
+.post-related-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.post-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 600px) { .post-related-grid { grid-template-columns: 1fr; } }
+
+.post-related-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.post-related-card:hover {
+  transform: translateY(-2px);
+  border-color: #353540;
+}
+.post-related-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.post-related-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.post-related-thumb-ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+}
+.post-related-thumb-ph[data-cat="映画コラム"]  { background: linear-gradient(135deg, #3d0a0a, #5a1010); }
+.post-related-thumb-ph[data-cat="アニメ考察"] { background: linear-gradient(135deg, #1a083d, #2d0f5a); }
+.post-related-thumb-ph[data-cat="おすすめ特集"]{ background: linear-gradient(135deg, #083d1a, #0f5a28); }
+.post-related-thumb-ph[data-cat="雑記"]       { background: linear-gradient(135deg, #1a1a22, #252532); }
+
+.post-related-info { padding: 10px 12px 12px; }
+.post-related-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

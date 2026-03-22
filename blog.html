@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブログ — ENTAME REVIEW</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="blog.css?v=2">
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo"><a href="index.html">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+    <div class="sidebar-items">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">✏️</span><span class="sidebar-text">あなたのレビューを投稿</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🎯</span><span class="sidebar-text">あなたにぴったりの作品を探す</span></a>
+      <a href="reviews.html" class="sidebar-item"><span class="sidebar-icon">💬</span><span class="sidebar-text">みんなのレビュー</span></a>
+      <a href="blog.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span class="sidebar-text">コラム・考察を読む</span></a>
+      <a href="osusume.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-text">管理人が厳選した作品</span></a>
+      <a href="ranking.html" class="sidebar-item"><span class="sidebar-icon">🏆</span><span class="sidebar-text">いいねランキング</span></a>
+      <a href="actor.html" class="sidebar-item"><span class="sidebar-icon">🎭</span><span class="sidebar-text">お気に入りの俳優を探す</span></a>
+    </div>
+    <div class="sidebar-counts">
+      <span class="sidebar-count-badge">❤️ <span id="favNum">0</span></span>
+      <span class="sidebar-count-badge">🔖 <span id="wishNum">0</span></span>
+    </div>
+  </nav>
+  <nav class="bottom-tabbar">
+    <a href="index.html" class="btab-item"><span class="btab-icon">✏️</span><span>投稿</span></a>
+    <a href="index.html" class="btab-item"><span class="btab-icon">🎯</span><span>診断</span></a>
+    <a href="reviews.html" class="btab-item"><span class="btab-icon">💬</span><span>レビュー</span></a>
+    <a href="blog.html" class="btab-item"><span class="btab-icon">📝</span><span>ブログ</span></a>
+    <a href="osusume.html" class="btab-item"><span class="btab-icon">👑</span><span>おすすめ</span></a>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-logo"><a href="index.html" style="color:inherit;text-decoration:none;">ENTAME<span class="logo-accent">REVIEW</span></a></div>
+      <p class="site-tagline">漫画・アニメ・映画・ドラマ のレビューをお届け</p>
+      <div class="header-btns">
+        <button id="blogWriteBtn" class="blog-write-btn">新規記事を書く</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="blog-section">
+      <div class="section-inner">
+
+        <div class="filter-bar" id="catFilterBar">
+          <button class="filter-btn blog-cat-btn active" data-cat="all">すべて</button>
+          <button class="filter-btn blog-cat-btn" data-cat="映画コラム">映画コラム</button>
+          <button class="filter-btn blog-cat-btn" data-cat="アニメ考察">アニメ考察</button>
+          <button class="filter-btn blog-cat-btn" data-cat="おすすめ特集">おすすめ特集</button>
+          <button class="filter-btn blog-cat-btn" data-cat="雑記">雑記</button>
+        </div>
+
+        <p class="result-count" id="blogResultCount"></p>
+        <div class="blog-grid" id="blogGrid"></div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 ENTAME REVIEW — すべてのレビューは個人の感想です</p>
+  </footer>
+
+  <!-- 記事投稿モーダル -->
+  <div id="blogWriteOverlay"></div>
+  <div id="blogWriteModal" role="dialog" aria-modal="true">
+    <button id="blogWriteClose" aria-label="閉じる">✕</button>
+    <h3 class="blog-modal-title">新規記事を書く</h3>
+    <form id="blogPostForm">
+      <div class="form-group">
+        <label class="form-label">タイトル <span class="form-required">*</span></label>
+        <input type="text" id="bTitle" class="form-input" required placeholder="記事タイトルを入力">
+      </div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ <span class="form-required">*</span></label>
+        <select id="bCat" class="form-input" required>
+          <option value="映画コラム">映画コラム</option>
+          <option value="アニメ考察">アニメ考察</option>
+          <option value="おすすめ特集">おすすめ特集</option>
+          <option value="雑記">雑記</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">サムネイル画像URL（任意）</label>
+        <input type="text" id="bThumb" class="form-input" placeholder="https://example.com/image.jpg">
+      </div>
+      <div class="form-group">
+        <label class="form-label">本文 <span class="form-required">*</span></label>
+        <textarea id="bBody" class="form-input form-textarea" rows="14" required placeholder="本文を書いてください。空行で段落を区切ります。"></textarea>
+      </div>
+      <button type="submit" class="form-submit">公開する</button>
+    </form>
+  </div>
+
+  <script src="blog.js"></script>
+  <script>
+    const CAT_ICON = {
+      '映画コラム': '🎬',
+      'アニメ考察': '✨',
+      'おすすめ特集': '👑',
+      '雑記': '📝'
+    };
+
+    let myBlogPosts = JSON.parse(localStorage.getItem('myBlogPosts') || '[]');
+    let currentCat = 'all';
+
+    function getAllPosts() {
+      return [...blogPosts, ...myBlogPosts].filter(p => p.published);
+    }
+
+    function saveMyBlogPosts() {
+      localStorage.setItem('myBlogPosts', JSON.stringify(myBlogPosts));
+    }
+
+    function buildThumbHtml(post, large) {
+      const icon = CAT_ICON[post.category] || '📝';
+      const thumbWrapStyle = 'style="width:100%; aspect-ratio:3/4; overflow:hidden;"';
+      const imgStyle = 'style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block;"';
+      if (post.thumbnail) {
+        return `<div class="blog-thumb" ${thumbWrapStyle}><img src="${post.thumbnail}" alt="${post.title}" loading="lazy" ${imgStyle} onerror="this.parentElement.innerHTML='<div class=\\"blog-thumb-ph\\" data-cat=\\"${post.category}\\">${icon}</div>'"></div>`;
+      }
+      if (post.personQuery) {
+        return `<div class="blog-thumb" data-person-query="${post.personQuery}" ${thumbWrapStyle}><div class="blog-thumb-ph" data-cat="${post.category}">${icon}</div></div>`;
+      }
+      return `<div class="blog-thumb" ${thumbWrapStyle}><div class="blog-thumb-ph" data-cat="${post.category}">${icon}</div></div>`;
+    }
+
+    const BLOG_TMDB_KEY = 'acb6aa56f60387a6985935f25c94704e';
+    const BLOG_TMDB_BASE = 'https://api.themoviedb.org/3';
+    const BLOG_TMDB_IMG  = 'https://image.tmdb.org/t/p/w300';
+
+    async function loadPersonThumbs() {
+      document.querySelectorAll('[data-person-query]').forEach(async wrap => {
+        const query = wrap.dataset.personQuery;
+        try {
+          const res    = await fetch(`${BLOG_TMDB_BASE}/search/person?api_key=${BLOG_TMDB_KEY}&language=ja-JP&query=${encodeURIComponent(query)}`);
+          const data   = await res.json();
+          const person = data.results && data.results[0];
+          if (!person || !person.profile_path) return;
+          const ph  = wrap.querySelector('.blog-thumb-ph');
+          const img = document.createElement('img');
+          img.src     = BLOG_TMDB_IMG + person.profile_path;
+          img.alt     = query;
+          img.loading = 'lazy';
+          img.style.cssText = 'width:100%; height:100%; object-fit:cover; object-position:center top; display:block;';
+          wrap.style.cssText = 'width:100%; aspect-ratio:3/4; overflow:hidden;';
+          if (ph) ph.replaceWith(img);
+        } catch(e) {}
+      });
+    }
+
+    function excerpt(text, len) {
+      const plain = text.replace(/\n/g, ' ');
+      return plain.length > len ? plain.slice(0, len) + '…' : plain;
+    }
+
+    function renderBlog(cat) {
+      currentCat = cat;
+      const grid    = document.getElementById('blogGrid');
+      const countEl = document.getElementById('blogResultCount');
+      let posts = getAllPosts();
+      if (cat !== 'all') posts = posts.filter(p => p.category === cat);
+      // 新しい順
+      posts = posts.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+      if (posts.length === 0) {
+        grid.innerHTML = '<p class="empty-msg">記事がありません</p>';
+        countEl.textContent = '';
+        return;
+      }
+
+      grid.innerHTML = posts.map(post => `
+        <a class="blog-card" href="blog-post.html?id=${post.id}">
+          ${buildThumbHtml(post)}
+          <div class="blog-card-body">
+            <div class="blog-card-meta">
+              <span class="blog-cat-badge" data-cat="${post.category}">${CAT_ICON[post.category] || ''} ${post.category}</span>
+              <span class="blog-card-date">${post.createdAt || ''}</span>
+            </div>
+            <p class="blog-card-title">${post.title}</p>
+            <p class="blog-card-excerpt">${excerpt(post.body, 100)}</p>
+          </div>
+        </a>
+      `).join('');
+
+      const label = cat === 'all' ? 'すべて' : cat;
+      countEl.textContent = `${label} — ${posts.length}件`;
+    }
+
+    // フィルター
+    document.getElementById('catFilterBar').addEventListener('click', function(e) {
+      const btn = e.target.closest('.blog-cat-btn');
+      if (!btn) return;
+      this.querySelectorAll('.blog-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderBlog(btn.dataset.cat);
+      loadPersonThumbs();
+    });
+
+    // モーダル開閉
+    function openWriteModal() {
+      document.getElementById('blogWriteOverlay').classList.add('active');
+      document.getElementById('blogWriteModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('blogPostForm').reset();
+    }
+    function closeWriteModal() {
+      document.getElementById('blogWriteOverlay').classList.remove('active');
+      document.getElementById('blogWriteModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('blogWriteBtn').addEventListener('click', openWriteModal);
+    document.getElementById('blogWriteClose').addEventListener('click', closeWriteModal);
+    document.getElementById('blogWriteOverlay').addEventListener('click', closeWriteModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWriteModal(); });
+
+    // フォーム送信
+    document.getElementById('blogPostForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const post = {
+        id:        Date.now(),
+        title:     document.getElementById('bTitle').value.trim(),
+        category:  document.getElementById('bCat').value,
+        thumbnail: document.getElementById('bThumb').value.trim(),
+        body:      document.getElementById('bBody').value.trim(),
+        createdAt: new Date().toISOString().slice(0, 10),
+        published: true
+      };
+      myBlogPosts.unshift(post);
+      saveMyBlogPosts();
+      closeWriteModal();
+      renderBlog(currentCat);
+    });
+
+    renderBlog('all');
+    loadPersonThumbs();
+  </script>
+</body>
+</html>
