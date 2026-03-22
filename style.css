@@ -2396,9 +2396,11 @@ a.modal-cast-photo-item.cast-link:hover .cast-photo-ph {
 .admin-login-btn {
   position: fixed;
   bottom: 20px; right: 20px;
-  width: 40px; height: 40px;
+  width: 18px; height: 18px;
   border-radius: 50%;
-  background: rgba(30,28,48,0.85);
+  background: rgba(30,28,48,0.15);
+  opacity: 0.12;
+  font-size: 0;
   border: 1px solid #2e2c46;
   color: #888; font-size: 1.1rem;
   cursor: pointer; z-index: 9990;
@@ -2406,7 +2408,7 @@ a.modal-cast-photo-item.cast-link:hover .cast-photo-ph {
   transition: color 0.15s, border-color 0.15s, background 0.15s;
   backdrop-filter: blur(6px);
 }
-.admin-login-btn:hover { color: #ffd84d; border-color: rgba(255,216,77,0.4); }
+.admin-login-btn:hover { opacity: 1; font-size: 1.1rem; width: 40px; height: 40px; color: #ffd84d; border-color: rgba(255,216,77,0.4); background: rgba(30,28,48,0.85); }
 @media (max-width: 860px) { .admin-login-btn { bottom: 74px; } }
 
 .login-overlay {
