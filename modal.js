@@ -984,4 +984,51 @@ document.addEventListener('keydown', e => {
     }).join('');
   }
 
+// ── プルトゥリフレッシュ ───────────────────────────────
+(function() {
+  const THRESHOLD = 80; // この距離（px）以上引っ張ったら「離してリロード」
+  let startY = 0;
+  let pulling = false;
+
+  const indicator = document.createElement('div');
+  indicator.id = 'ptr-indicator';
+  indicator.innerHTML = '<span class="ptr-spinner"></span><span class="ptr-text">↓ 引っ張ってリロード</span>';
+  document.body.appendChild(indicator);
+
+  document.addEventListener('touchstart', e => {
+    if (window.scrollY === 0) {
+      startY = e.touches[0].clientY;
+      pulling = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dist = e.touches[0].clientY - startY;
+    if (dist <= 0) { indicator.style.height = '0'; return; }
+
+    const h = Math.min(dist * 0.5, 70);
+    indicator.style.height = h + 'px';
+    indicator.style.opacity = Math.min(h / 40, 1);
+
+    const ready = dist >= THRESHOLD;
+    indicator.querySelector('.ptr-text').textContent = ready ? '離してリロード' : '↓ 引っ張ってリロード';
+    indicator.classList.toggle('ptr-ready', ready);
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if (!pulling) return;
+    pulling = false;
+    const dist = e.changedTouches[0].clientY - startY;
+    if (dist >= THRESHOLD && window.scrollY === 0) {
+      indicator.querySelector('.ptr-text').textContent = '読み込み中…';
+      indicator.style.height = '56px';
+      setTimeout(() => location.reload(), 300);
+    } else {
+      indicator.style.height = '0';
+      indicator.style.opacity = '0';
+    }
+  }, { passive: true });
+})();
+
 })();

@@ -2609,3 +2609,36 @@ body.admin-mode .admin-only.btab-item   { display: flex !important; }
 .fb-sbtn.on-checking { color: #ffd84d; border-color: rgba(255,216,77,0.4); background: rgba(255,216,77,0.08); }
 .fb-sbtn.on-done     { color: #2dbd6e; border-color: rgba(45,189,110,0.4);  background: rgba(45,189,110,0.08); }
 .fb-sbtn.on-rejected { color: #e05555; border-color: rgba(224,85,85,0.4);   background: rgba(224,85,85,0.08);  }
+
+/* ── プルトゥリフレッシュ ────────────────────────────── */
+#ptr-indicator {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(30, 28, 48, 0.92);
+  color: #aaa;
+  font-size: 0.85rem;
+  z-index: 99999;
+  transition: height 0.15s ease, opacity 0.15s ease;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+}
+#ptr-indicator.ptr-ready { color: #a78bfa; }
+#ptr-indicator.ptr-ready .ptr-spinner { border-top-color: #a78bfa; }
+
+.ptr-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: #aaa;
+  border-radius: 50%;
+  animation: ptr-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
