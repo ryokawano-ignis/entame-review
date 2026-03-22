@@ -593,7 +593,7 @@ function renderWriteStep2(content) {
     btn.addEventListener('mouseleave', () => { starBtns.forEach(b => b.classList.remove('hover')); });
   });
 
-  document.getElementById('writeSubmitBtn').addEventListener('click', () => {
+  document.getElementById('writeSubmitBtn').addEventListener('click', async () => {
     const body = document.getElementById('writeBody').value.trim();
     if (!body) { document.getElementById('writeBody').focus(); return; }
     const nickname = document.getElementById('writeNickname').value.trim() || '匿名';
@@ -611,11 +611,34 @@ function renderWriteStep2(content) {
       tags:      writeSelected.tags || [],
       createdAt: new Date().toISOString()
     };
-    const communityReviews = JSON.parse(localStorage.getItem('communityReviews') || '[]');
-    communityReviews.unshift(review);
-    localStorage.setItem('communityReviews', JSON.stringify(communityReviews));
-    writeStep = 3;
-    renderWriteStep3(document.getElementById('writeContent'), review);
+
+    const submitBtn = document.getElementById('writeSubmitBtn');
+    submitBtn.textContent = '投稿中…';
+    submitBtn.disabled = true;
+
+    const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/69BFD722C3097A1DD54AB8C9';
+    const JSONBIN_KEY = '$2a$10$c7tOmJDVAwRdLUqJRydoEO6uM1ULNw22HlMen2QAlHcjlwIblWHYu';
+
+    try {
+      const getRes  = await fetch(JSONBIN_URL + '/latest', { headers: { 'X-Master-Key': JSONBIN_KEY } });
+      const getData = await getRes.json();
+      const existing = (getData.record && getData.record.reviews) ? getData.record.reviews : [];
+
+      existing.unshift(review);
+
+      await fetch(JSONBIN_URL, {
+        method: 'PUT',
+        headers: { 'X-Master-Key': JSONBIN_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviews: existing })
+      });
+
+      writeStep = 3;
+      renderWriteStep3(document.getElementById('writeContent'), review);
+    } catch (err) {
+      submitBtn.textContent = '投稿する';
+      submitBtn.disabled = false;
+      alert('投稿に失敗しました。もう一度お試しください。');
+    }
   });
 }
 

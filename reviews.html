@@ -126,14 +126,31 @@
       btn.querySelector('.like-count').textContent = likes[key] || 0;
     }
 
-    function renderCommunity() {
-      const list    = document.getElementById('communityList');
-      const empty   = document.getElementById('communityEmpty');
-      const reviews = JSON.parse(localStorage.getItem('communityReviews') || '[]');
-      const likes   = getLikes();
-      const liked   = getLiked();
+    const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/69BFD722C3097A1DD54AB8C9';
+    const JSONBIN_KEY = '$2a$10$c7tOmJDVAwRdLUqJRydoEO6uM1ULNw22HlMen2QAlHcjlwIblWHYu';
+
+    async function renderCommunity() {
+      const list  = document.getElementById('communityList');
+      const empty = document.getElementById('communityEmpty');
+
+      list.innerHTML = '<p class="community-empty" style="display:block;">読み込み中…</p>';
+      empty.style.display = 'none';
+
+      let reviews = [];
+      try {
+        const res  = await fetch(JSONBIN_URL + '/latest', { headers: { 'X-Master-Key': JSONBIN_KEY } });
+        const data = await res.json();
+        reviews = (data.record && data.record.reviews) ? data.record.reviews : [];
+      } catch (err) {
+        list.innerHTML = '<p class="community-empty" style="display:block;">データの取得に失敗しました。<br>ページを再読み込みしてください。</p>';
+        return;
+      }
+
+      const likes = getLikes();
+      const liked = getLiked();
 
       if (reviews.length === 0) {
+        list.innerHTML = '';
         empty.style.display = '';
         return;
       }
@@ -223,7 +240,10 @@
       });
     }
 
-    renderCommunity();
+    renderCommunity().catch(() => {
+      document.getElementById('communityList').innerHTML =
+        '<p class="community-empty" style="display:block;">データの取得に失敗しました。<br>ページを再読み込みしてください。</p>';
+    });
   </script>
 </body>
 </html>
