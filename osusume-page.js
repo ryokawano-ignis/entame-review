@@ -21,7 +21,7 @@ let osusumeData = (() => {
   // base の作品は常に含める（savedにコメントがあれば反映）
   const merged = base.map(b => {
     const s = saved.find(x => x.id === b.id || x.title === b.title);
-    return s ? { ...b, comment: s.comment ?? b.comment } : b;
+    return s ? { ...b, comment: s.comment || b.comment } : b;
   });
   // 編集画面でユーザーが追加した作品も末尾に追加
   saved.forEach(s => {
