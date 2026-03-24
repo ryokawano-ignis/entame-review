@@ -46,8 +46,11 @@ function createWorkCard(work, mediaType) {
       _genreIds: work.genre_ids || []
     });
   }
+  let _touchMoved = false;
+  card.addEventListener('touchstart', () => { _touchMoved = false; }, { passive: true });
+  card.addEventListener('touchmove',  () => { _touchMoved = true; }, { passive: true });
   card.addEventListener('click', openWorkModal);
-  card.addEventListener('touchend', e => { e.preventDefault(); openWorkModal(); });
+  card.addEventListener('touchend', e => { if (!_touchMoved) { e.preventDefault(); openWorkModal(); } });
 
   return card;
 }

@@ -238,8 +238,11 @@
             });
           }
         }
+        let _touchMoved = false;
+        el.addEventListener('touchstart', () => { _touchMoved = false; }, { passive: true });
+        el.addEventListener('touchmove',  () => { _touchMoved = true; }, { passive: true });
         el.addEventListener('click', openCrModal);
-        el.addEventListener('touchend', e => { e.preventDefault(); openCrModal(); });
+        el.addEventListener('touchend', e => { if (!_touchMoved) { e.preventDefault(); openCrModal(); } });
       });
     }
 

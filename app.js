@@ -270,8 +270,11 @@ function createCard(review, rank) {
   btns.appendChild(favBtn);
   btns.appendChild(wishBtn);
 
+  let _touchMoved = false;
+  card.addEventListener('touchstart', e => { _touchMoved = false; }, { passive: true });
+  card.addEventListener('touchmove',  () => { _touchMoved = true; }, { passive: true });
   card.addEventListener('click', () => openModal(review));
-  card.addEventListener('touchend', e => { e.preventDefault(); openModal(review); });
+  card.addEventListener('touchend', e => { if (!_touchMoved) { e.preventDefault(); openModal(review); } });
   return card;
 }
 

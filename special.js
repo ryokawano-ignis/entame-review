@@ -59,8 +59,11 @@ function createSpecialCard(movie) {
       _genreIds: movie.genre_ids || []
     });
   }
+  let _touchMoved = false;
+  card.addEventListener('touchstart', () => { _touchMoved = false; }, { passive: true });
+  card.addEventListener('touchmove',  () => { _touchMoved = true; }, { passive: true });
   card.addEventListener('click', openSpecialModal);
-  card.addEventListener('touchend', e => { e.preventDefault(); openSpecialModal(); });
+  card.addEventListener('touchend', e => { if (!_touchMoved) { e.preventDefault(); openSpecialModal(); } });
 
   return card;
 }
