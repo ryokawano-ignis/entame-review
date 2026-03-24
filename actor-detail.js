@@ -32,7 +32,7 @@ function createWorkCard(work, mediaType) {
       </div>
     </div>`;
 
-  card.addEventListener('click', () => {
+  function openWorkModal() {
     openModal({
       genre,
       title,
@@ -45,7 +45,9 @@ function createWorkCard(work, mediaType) {
       _fromTMDB: true,
       _genreIds: work.genre_ids || []
     });
-  });
+  }
+  card.addEventListener('click', openWorkModal);
+  card.addEventListener('touchend', e => { e.preventDefault(); openWorkModal(); });
 
   return card;
 }

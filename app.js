@@ -271,6 +271,7 @@ function createCard(review, rank) {
   btns.appendChild(wishBtn);
 
   card.addEventListener('click', () => openModal(review));
+  card.addEventListener('touchend', e => { e.preventDefault(); openModal(review); });
   return card;
 }
 

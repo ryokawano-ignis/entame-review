@@ -213,7 +213,7 @@
       reviews.forEach(r => { crMap[String(r.id)] = r; });
 
       list.querySelectorAll('.community-card-poster[data-cr-id]').forEach(el => {
-        el.addEventListener('click', () => {
+        function openCrModal() {
           const cr = crMap[el.dataset.crId];
           if (!cr) return;
           // data.js の reviews から同名作品を探す
@@ -236,7 +236,9 @@
               cast:     []
             });
           }
-        });
+        }
+        el.addEventListener('click', openCrModal);
+        el.addEventListener('touchend', e => { e.preventDefault(); openCrModal(); });
       });
     }
 

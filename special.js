@@ -45,7 +45,7 @@ function createSpecialCard(movie) {
   btns.appendChild(favBtn);
   btns.appendChild(wishBtn);
 
-  card.addEventListener('click', () => {
+  function openSpecialModal() {
     openModal({
       genre:     'movie',
       title,
@@ -58,7 +58,9 @@ function createSpecialCard(movie) {
       _fromTMDB: true,
       _genreIds: movie.genre_ids || []
     });
-  });
+  }
+  card.addEventListener('click', openSpecialModal);
+  card.addEventListener('touchend', e => { e.preventDefault(); openSpecialModal(); });
 
   return card;
 }
